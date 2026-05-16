@@ -32,6 +32,7 @@ function RootLayoutNav() {
       <Stack.Screen name="auth" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="+not-found" />
+      <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
     </Stack>
   );
 }

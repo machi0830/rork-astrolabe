@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Alert, Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -10,31 +10,11 @@ import Colors from '@/constants/colors';
 import { DOMAINS } from '@/constants/domains';
 import { useDiagnostic } from '@/hooks/useDiagnostic';
 import { useNorthStar } from '@/hooks/useNorthStar';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function NorthStarHome() {
   const router = useRouter();
   const { result } = useDiagnostic();
   const { data } = useNorthStar();
-  const { signOut } = useAuth();
-
-  const onLogout = () => {
-    Alert.alert(
-      'ログアウト',
-      'ログアウトするとローカルデータも削除されます。よろしいですか？',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: 'ログアウト',
-          style: 'destructive',
-          onPress: async () => {
-            await signOut();
-            router.replace('/auth/login');
-          },
-        },
-      ]
-    );
-  };
 
   const pulse = useRef(new Animated.Value(0.6)).current;
   useEffect(() => {
@@ -125,9 +105,6 @@ export default function NorthStarHome() {
             </View>
           )}
           <View style={{ height: 40 }} />
-          <Pressable onPress={onLogout} hitSlop={10} style={styles.logoutBtn}>
-            <Typo style={styles.logoutText}>ログアウト</Typo>
-          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </BackgroundView>
@@ -198,15 +175,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textMuted,
     lineHeight: 22,
-  },
-  logoutBtn: {
-    alignSelf: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-  },
-  logoutText: {
-    fontSize: 12,
-    color: Colors.warning,
-    letterSpacing: 1.5,
   },
 });

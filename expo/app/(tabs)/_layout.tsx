@@ -1,14 +1,27 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
+import { Tabs, router } from 'expo-router';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Pressable } from 'react-native';
 import Colors from '@/constants/colors';
 
 export default function TabLayout() {
+  const headerRight = () => (
+    <Pressable
+      onPress={() => router.push('/settings')}
+      style={{ marginRight: 16 }}
+    >
+      <Ionicons name="settings-outline" size={22} color={Colors.starlight} />
+    </Pressable>
+  );
+
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerStyle: { backgroundColor: '#050A18' },
+        headerShadowVisible: false,
+        headerTintColor: Colors.starlight,
+        headerRight,
         tabBarActiveTintColor: Colors.starlight,
         tabBarInactiveTintColor: Colors.textDim,
         tabBarStyle: styles.tabBar,
@@ -19,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="observation"
         options={{
-          title: '観測',
+          title: '観察',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="telescope" color={color} size={size} />
           ),
