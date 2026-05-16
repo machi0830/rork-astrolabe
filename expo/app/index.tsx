@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LoadingScreen from './loading';
 import { useAuth } from '@/hooks/useAuth';
+import Colors from '@/constants/colors';
 
 const ONBOARDING_KEY = 'onboarding_completed';
 
@@ -25,7 +26,11 @@ export default function Gate() {
   }, []);
 
   if (loading || onboardingDone === null) {
-    return <LoadingScreen />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="small" color={Colors.starlight} />
+      </View>
+    );
   }
 
   if (!onboardingDone) {
@@ -38,3 +43,12 @@ export default function Gate() {
 
   return <Redirect href="/(tabs)/observation" />;
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

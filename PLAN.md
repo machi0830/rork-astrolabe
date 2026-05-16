@@ -1,27 +1,11 @@
-# メール認証フロー（ログイン・サインアップ・ログアウト）を追加
+# Fix black screen during auth loading
 
-## 機能
-- [x] メールアドレスとパスワードでアカウント登録できる
-- [x] 登録済みユーザーはメール＋パスワードでログインできる
-- [x] 一度ログインすれば次回起動時は自動で開く（セッション維持）
-- [x] ログアウトでローカル情報を消して最初の状態に戻れる
-- [x] 未ログイン状態でアプリ本体を開こうとするとログイン画面へ案内される
+**Problem:** The splash screen hides immediately in `_layout.tsx`, before auth/onboarding state resolves. This causes a black flash or freeze.
 
-## デザイン
-- [x] 既存の星空背景（OB1Screen）と金色アクセントをそのまま使用
-- [x] 入力フィールドは暗いカード調、ラベルは小さく上に配置
-- [x] パスワード欄に「目」アイコンで表示／非表示の切替
-- [x] エラーは深い赤の細いバナーで控えめに表示
-- [x] 利用規約・免責の2チェックを満たすとボタンが金色に点灯
-- [x] ログアウトボタンは控えめな警告色
+**Fix (2 files):**
 
-## 画面
-- [x] **ログイン画面**: ASTROLABEロゴ、「おかえりなさい」、メール・パスワード入力、「航海を続ける」ボタン、サインアップ画面への小さなリンク
-- [x] **サインアップ画面**: 「航海を始める」、メール・パスワード・確認入力、利用規約と免責の2つの同意チェック、「登録する」ボタン、ログイン画面への小さなリンク
-- [x] **ローディング画面**: 認証状態確認中に、同心円アニメと「ASTROLABE」を中央表示
-- [x] **起動振り分け**: オンボーディング未完了→オンボーディング、完了かつ未ログイン→ログイン、ログイン済み→メインタブ
-- [x] **ログアウト**: 北極星タブ下部に「ログアウト」を追加し、確認ダイアログでローカルデータも削除
+- [x] **`app/_layout.tsx`** — Move `SplashScreen.hideAsync()` into a callback that fires only after the `AuthProvider` has finished its initial session check. Instead of hiding on mount unconditionally, listen for auth loading to complete before dismissing the splash.
 
-## 注意
-- [x] Supabase未接続の環境ではモック動作にフォールバック（クラッシュしない）
-- [x] サインアップ時に user_profiles にトライアルプランで初期レコードを作成
+- [x] **`app/index.tsx`** — Add a lightweight inline loading fallback directly in the gate component (a simple centered `ActivityIndicator` on `Colors.background`) so there's zero dependency on `BackgroundView`/`ConcentricCircles` during the critical initial render path. This eliminates any risk of heavy components causing a blank frame.
+
+The splash screen acts as the primary loading visual; the inline ActivityIndicator is the safety net that prevents any black frame from ever appearing.

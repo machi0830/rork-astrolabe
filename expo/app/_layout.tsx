@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import React, { useEffect } from 'react';
+import React, { useEffect, type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View } from 'react-native';
@@ -11,11 +11,24 @@ import { NorthStarProvider } from '@/hooks/useNorthStar';
 import { IfThenProvider } from '@/hooks/useIfThen';
 import { JournalSessionsProvider } from '@/hooks/useJournalSessions';
 import { PlanProvider } from '@/hooks/usePlan';
-import { AuthProvider } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const queryClient = new QueryClient();
+
+/** Waits for auth to resolve, then dismisses the native splash. */
+function SplashGate({ children }: { children: ReactNode }) {
+  const { loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [loading]);
+
+  return <>{children}</>;
+}
 
 function RootLayoutNav() {
   return (
@@ -38,15 +51,12 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  useEffect(() => {
-    SplashScreen.hideAsync().catch(() => {});
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: Colors.background }}>
         <SafeAreaProvider>
           <AuthProvider>
+            <SplashGate>
           <PlanProvider>
             <DiagnosticProvider>
               <NorthStarProvider>
@@ -60,6 +70,7 @@ export default function RootLayout() {
               </NorthStarProvider>
             </DiagnosticProvider>
           </PlanProvider>
+            </SplashGate>
           </AuthProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
