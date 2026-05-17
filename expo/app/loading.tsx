@@ -22,9 +22,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   logo: {
-    fontSize: 12,
-    letterSpacing: 3,
-    color: Colors.textDim,
-    fontWeight: '500',
+        fontSize: 32,
+        letterSpacing: 8,
+        color: '#FFFFFF',
+        fontWeight: '300',
   },
 });
