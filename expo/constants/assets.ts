@@ -20,7 +20,7 @@
 // Freepik画像が用意できたら null を require() に切り替えてください
 export const Images = {
   // ホーム・観測画面の背景（深宇宙）
-  bgSpace: null as any,
+  bgSpace: require('../assets/images/bg_space.png') as any,
   // bgSpace: require('../assets/images/bg_space.png'),
 
   // 北極星画面の背景
