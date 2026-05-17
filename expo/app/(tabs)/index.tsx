@@ -7,11 +7,11 @@ import { StatusBar } from 'expo-status-bar';
 
 const { width, height } = Dimensions.get('window');
 
-// 既存の画面コンポーネントをインポート
-import ObservationScreen from './observation/index';
-import NorthStarScreen from './northstar/index';
-import JournalHomeScreen from './journal/index';
-import WakeViewScreen from './wake/index';
+// 💡 Rorkの実際のフォルダ階層（app/(tabs)/...）に合わせてインポートパスを修正
+import ObservationScreen from './observation';
+import NorthStarScreen from './northstar';
+import JournalHomeScreen from './journal';
+import WakeViewScreen from './wake';
 
 type TabMode = 'observe' | 'northstar' | 'journal' | 'wake' | 'hub';
 
