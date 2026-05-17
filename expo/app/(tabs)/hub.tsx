@@ -1,40 +1,35 @@
-// expo/app/(tabs)/index.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Animated, Dimensions, ScrollView, Easing } from 'react-native';
 import Svg, { Circle, Path, G } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-const { width, height } = Dimensions.get('window');
-
-// 💡 Rorkの実際のフォルダ階層（app/(tabs)/...）に合わせてインポートパスを修正
 import ObservationScreen from './observation';
 import NorthStarScreen from './northstar';
 import JournalHomeScreen from './journal';
 import WakeViewScreen from './wake';
 
+const { width, height } = Dimensions.get('window');
+
 type TabMode = 'observe' | 'northstar' | 'journal' | 'wake' | 'hub';
 
 export default function AstrolabeHubScreen() {
   const [currentMode, setCurrentMode] = useState<TabMode>('hub');
-  
+
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const contentFadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const startRotation = () => {
-      rotateAnim.setValue(0);
-      Animated.loop(
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 40000,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ).start();
-    };
-    startRotation();
+    rotateAnim.setValue(0);
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 40000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
   }, [rotateAnim]);
 
   const handleModeChange = (mode: TabMode) => {
@@ -55,7 +50,7 @@ export default function AstrolabeHubScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      
+
       {/* 背景の星空 */}
       <View style={StyleSheet.absoluteFill}>
         {[...Array(40)].map((_, i) => (
@@ -64,10 +59,10 @@ export default function AstrolabeHubScreen() {
             style={[
               styles.star,
               {
-                top: Math.random() * height,
-                left: Math.random() * width,
-                opacity: Math.random() * 0.7 + 0.2,
-                transform: [{ scale: Math.random() * 1.5 + 0.5 }],
+                top: (i * 137.5) % height,
+                left: (i * 73.1) % width,
+                opacity: 0.2 + (i % 5) * 0.1,
+                transform: [{ scale: 0.5 + (i % 3) * 0.5 }],
               },
             ]}
           />
@@ -145,7 +140,7 @@ const styles = StyleSheet.create({
   star: { position: 'absolute', width: 2, height: 2, backgroundColor: '#FFF', borderRadius: 1 },
   hubContainer: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingVertical: 40 },
   header: { alignItems: 'center', marginTop: 20 },
-  brandTitle: { fontSize: 24, letterSpacing: 8, color: '#FFF', fontWeight: '300' },
+  brandTitle: { fontSize: 24, letterSpacing: 8, color: '#FFF', fontWeight: '300' as const },
   brandSubtitle: { fontSize: 12, letterSpacing: 3, color: '#60A5FA', marginTop: 8, opacity: 0.8 },
   instrumentWrapper: { position: 'absolute', top: height / 2 - 140, left: width / 2 - 140, width: 280, height: 280, justifyContent: 'center', alignItems: 'center' },
   navOverlay: { position: 'absolute', width: width, height: height * 0.5, top: height * 0.22 },
