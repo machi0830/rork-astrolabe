@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Animated, Dimensions, ScrollView, Easing } from 'react-native';
-import Svg, { Circle, Path, G } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
@@ -21,15 +21,18 @@ export default function AstrolabeHubScreen() {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    rotateAnim.setValue(0);
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 40000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
+    const startRotation = () => {
+      rotateAnim.setValue(0);
+      Animated.loop(
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 40000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+    startRotation();
   }, [rotateAnim]);
 
   const handleModeChange = (mode: TabMode) => {
@@ -59,10 +62,9 @@ export default function AstrolabeHubScreen() {
             style={[
               styles.star,
               {
-                top: (i * 137.5) % height,
-                left: (i * 73.1) % width,
-                opacity: 0.2 + (i % 5) * 0.1,
-                transform: [{ scale: 0.5 + (i % 3) * 0.5 }],
+                top: Math.random() * (height * 0.7),
+                left: Math.random() * width,
+                opacity: Math.random() * 0.7 + 0.3,
               },
             ]}
           />
@@ -74,21 +76,23 @@ export default function AstrolabeHubScreen() {
           <View style={styles.hubContainer}>
             <View style={styles.header}>
               <Text style={styles.brandTitle}>ASTROLABE</Text>
-              <Text style={styles.brandSubtitle}>あなたの航海図</Text>
+              <Text style={styles.brandSubtitle}>感情に翻弄されるのでなく、冷静に海図を読み、自律して航海する</Text>
             </View>
 
             {/* 中央のアストロラーベ計器 */}
-            <Animated.View style={[styles.instrumentWrapper, { transform: [{ rotate: spin }, { scale: scaleAnim }] }]}>
-              <Svg width={280} height={280} viewBox="0 0 280 280">
-                <Circle cx="140" cy="140" r="130" stroke="#C8A040" strokeWidth="1" fill="none" opacity="0.4" />
-                <Circle cx="140" cy="140" r="125" stroke="#C8A040" strokeWidth="0.5" fill="none" strokeDasharray="2, 4" opacity="0.3" />
-                <Circle cx="140" cy="140" r="80" stroke="#4A8ED4" strokeWidth="1" fill="none" opacity="0.2" />
-                <G opacity="0.4">
-                  <Path d="M140 10 L140 20 M140 260 L140 270 M10 140 L20 140 M260 140 L270 140" stroke="#C8A040" strokeWidth="1.5" />
-                </G>
-                <Path d="M60 140 Q140 60 220 140 T60 140" stroke="#7058C0" strokeWidth="0.5" fill="none" opacity="0.3" />
-              </Svg>
-            </Animated.View>
+            <View style={styles.instrumentOuterContainer}>
+              <Animated.View style={[styles.instrumentWrapper, { transform: [{ rotate: spin }, { scale: scaleAnim }] }]}>
+                <Svg width={260} height={260} viewBox="0 0 280 280">
+                  <Circle cx="140" cy="140" r="130" stroke="#C8A040" strokeWidth="2" fill="none" />
+                  <Circle cx="140" cy="140" r="120" stroke="#C8A040" strokeWidth="0.5" fill="none" strokeDasharray="4, 4" />
+                  <Circle cx="140" cy="140" r="80" stroke="#4A8ED4" strokeWidth="1" fill="none" />
+                  <Path d="M140 10 L140 25 M140 255 L140 270 M10 140 L25 140 M255 140 L270 140" stroke="#C8A040" strokeWidth="2" />
+                  <Path d="M49 49 L60 60 M231 49 L220 60 M49 231 L60 220 M231 231 L220 220" stroke="#C8A040" strokeWidth="1" />
+                  <Path d="M140 60 A80 80 0 0 1 220 140 A80 80 0 0 1 140 220 A80 80 0 0 1 60 140 A80 80 0 0 1 140 60" stroke="#7058C0" strokeWidth="0.75" fill="none" />
+                  <Circle cx="140" cy="140" r="6" fill="#C8A040" />
+                </Svg>
+              </Animated.View>
+            </View>
 
             {/* 四方ナビゲーション */}
             <View style={styles.navOverlay}>
@@ -135,25 +139,26 @@ export default function AstrolabeHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#050A18' },
+  container: { flex: 1, backgroundColor: '#030712' },
   safeArea: { flex: 1 },
   star: { position: 'absolute', width: 2, height: 2, backgroundColor: '#FFF', borderRadius: 1 },
-  hubContainer: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingVertical: 40 },
-  header: { alignItems: 'center', marginTop: 20 },
+  hubContainer: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingVertical: 30 },
+  header: { alignItems: 'center', marginTop: 15, paddingHorizontal: 30 },
   brandTitle: { fontSize: 24, letterSpacing: 8, color: '#FFF', fontWeight: '300' as const },
-  brandSubtitle: { fontSize: 12, letterSpacing: 3, color: '#60A5FA', marginTop: 8, opacity: 0.8 },
-  instrumentWrapper: { position: 'absolute', top: height / 2 - 140, left: width / 2 - 140, width: 280, height: 280, justifyContent: 'center', alignItems: 'center' },
-  navOverlay: { position: 'absolute', width: width, height: height * 0.5, top: height * 0.22 },
-  navButton: { position: 'absolute', alignItems: 'center', justifyContent: 'center', padding: 15 },
-  navTop: { top: 0, left: width / 2 - 40, width: 80 },
-  navRight: { right: width * 0.08, top: height * 0.2 },
-  navBottom: { bottom: 0, left: width / 2 - 40, width: 80 },
-  navLeft: { left: width * 0.08, top: height * 0.2 },
-  navIcon: { fontSize: 22, color: '#C8A040', marginBottom: 4 },
-  navLabel: { fontSize: 12, color: '#A0AEC0', letterSpacing: 2 },
-  footerHint: { fontSize: 11, color: '#4A5568', letterSpacing: 2, marginBottom: 20 },
+  brandSubtitle: { fontSize: 11, color: '#9CA3AF', marginTop: 12, textAlign: 'center', lineHeight: 18, letterSpacing: 1 },
+  instrumentOuterContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 280 },
+  instrumentWrapper: { width: 260, height: 260, justifyContent: 'center', alignItems: 'center' },
+  navOverlay: { position: 'absolute', width: width, height: 320, top: '32%' },
+  navButton: { position: 'absolute', alignItems: 'center', justifyContent: 'center', width: 70, height: 60 },
+  navTop: { top: 0, left: width / 2 - 35 },
+  navRight: { right: width * 0.08, top: 120 },
+  navBottom: { bottom: 0, left: width / 2 - 35 },
+  navLeft: { left: width * 0.08, top: 120 },
+  navIcon: { fontSize: 20, color: '#C8A040', marginBottom: 2 },
+  navLabel: { fontSize: 12, color: '#9CA3AF', letterSpacing: 2 },
+  footerHint: { fontSize: 11, color: '#4B5563', letterSpacing: 2, marginBottom: 10 },
   contentContainer: { flex: 1, width: width },
   scrollContent: { paddingBottom: 100 },
-  backButton: { position: 'absolute', bottom: 25, alignSelf: 'center', backgroundColor: 'rgba(10, 20, 40, 0.9)', borderWidth: 0.5, borderColor: '#C8A040', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 20 },
+  backButton: { position: 'absolute', bottom: 25, alignSelf: 'center', backgroundColor: 'rgba(17, 24, 39, 0.95)', borderWidth: 1, borderColor: '#C8A040', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 20 },
   backButtonText: { color: '#C8A040', fontSize: 12, letterSpacing: 2 },
 });

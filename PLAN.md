@@ -1,10 +1,18 @@
-# Fix Metro build error by removing unused broken dependency
+# Skip onboarding & redirect to Astrolabe hub after login
 
+**Goal:** 起動時のオンボーディング画面をスキップし、ログイン済みユーザーは Astrolabe メインハブ画面へ直接リダイレクトするように `app/index.tsx` を修正します。
 
-## Problem
-The `react-native-worklets` package is listed in the project's dependencies but is not used anywhere in the app. It is incompatible with the current setup and prevents all other packages (including Expo itself) from installing correctly — causing Metro to fail with "Script not found: expo".
+**変更内容**
+- [x] `app/index.tsx` のオンボーディング完了チェック（`onboarding_completed` AsyncStorage キー）を削除
+- [x] 未ログイン時は `/auth/login` へリダイレクト（維持）
+- [x] ログイン済み時は `/(tabs)/hub` へリダイレクト
+- [x] `app/(tabs)/hub.tsx` をメインハブ画面の最新版で上書き
+- [x] `app/(tabs)/index.tsx` を削除（Expo Router の index ルート競合を回避）
+- [x] `app/(tabs)/_layout.tsx` に `initialRouteName="hub"` を追加
+- [x] ローディング中の ActivityIndicator はそのまま維持
 
-## Fix
-- [x] Remove `react-native-worklets` from the dependency list in `package.json`
-- [x] This allows all remaining packages to install cleanly, restoring the `expo` binary and letting Metro start normally
-- [x] No app functionality is affected since this package was never actually used
+**変更対象ファイル**
+- `expo/app/index.tsx`
+- `expo/app/(tabs)/hub.tsx`
+- `expo/app/(tabs)/index.tsx`（削除）
+- `expo/app/(tabs)/_layout.tsx`
