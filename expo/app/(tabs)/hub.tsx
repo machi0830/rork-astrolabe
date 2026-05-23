@@ -1,134 +1,176 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated, Dimensions, ScrollView, Easing } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import ObservationScreen from './observation';
 import NorthStarScreen from './northstar';
 import JournalHomeScreen from './journal';
 import WakeViewScreen from './wake';
+import AstrolabeInstrument from '@/components/AstrolabeInstrument';
+import DeepStarfield from '@/components/DeepStarfield';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 type TabMode = 'observe' | 'northstar' | 'journal' | 'wake' | 'hub';
 
+const NODE_ANGLE: Record<Exclude<TabMode, 'hub'>, number> = {
+  observe: 0,
+  northstar: 90,
+  journal: 180,
+  wake: 270,
+};
+
+interface NodeDef {
+  mode: Exclude<TabMode, 'hub'>;
+  glyph: string;
+  label: string;
+  sub: string;
+}
+
+const NODES: NodeDef[] = [
+  { mode: 'observe',   glyph: '◎', label: '観測',   sub: 'OBSERVATION' },
+  { mode: 'northstar', glyph: '✦', label: '北極星', sub: 'NORTH STAR'  },
+  { mode: 'journal',   glyph: '◫', label: '日誌',   sub: 'JOURNAL'     },
+  { mode: 'wake',      glyph: '〜', label: '航跡',   sub: 'WAKE'        },
+];
+
+const INSTRUMENT_SIZE = Math.min(width * 0.92, 380);
+
 export default function AstrolabeHubScreen() {
   const [currentMode, setCurrentMode] = useState<TabMode>('hub');
+  const [focusAngle, setFocusAngle] = useState(0);
 
-  const rotateAnim = useRef(new Animated.Value(0)).current;
   const contentFadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const startRotation = () => {
-      rotateAnim.setValue(0);
-      Animated.loop(
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 40000,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ).start();
-    };
-    startRotation();
-  }, [rotateAnim]);
 
   const handleModeChange = (mode: TabMode) => {
-    Animated.parallel([
-      Animated.timing(contentFadeAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
-      Animated.timing(scaleAnim, { toValue: mode === 'hub' ? 1 : 0.65, duration: 300, useNativeDriver: true })
-    ]).start(() => {
+    if (mode !== 'hub') {
+      setFocusAngle(-NODE_ANGLE[mode]);
+    } else {
+      setFocusAngle(0);
+    }
+    Animated.timing(contentFadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
       setCurrentMode(mode);
-      Animated.timing(contentFadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      Animated.timing(contentFadeAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }).start();
     });
   };
 
-  const spin = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  useEffect(() => {
+    Animated.timing(contentFadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, [contentFadeAnim]);
+
+  const nodes = useMemo(() => {
+    const radius = INSTRUMENT_SIZE / 2 - 30;
+    return NODES.map((n) => {
+      const rad = ((NODE_ANGLE[n.mode] - 90) * Math.PI) / 180;
+      const x = INSTRUMENT_SIZE / 2 + Math.cos(rad) * radius;
+      const y = INSTRUMENT_SIZE / 2 + Math.sin(rad) * radius;
+      return { ...n, x, y };
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* 背景の星空 */}
-      <View style={StyleSheet.absoluteFill}>
-        {[...Array(40)].map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.star,
-              {
-                top: Math.random() * (height * 0.7),
-                left: Math.random() * width,
-                opacity: Math.random() * 0.7 + 0.3,
-              },
-            ]}
-          />
-        ))}
-      </View>
+      <LinearGradient
+        colors={['#03050C', '#06091C', '#03050C']}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      />
+
+      <DeepStarfield count={150} />
 
       <SafeAreaView style={styles.safeArea}>
         {currentMode === 'hub' ? (
-          <View style={styles.hubContainer}>
+          <Animated.View
+            style={[styles.hubContainer, { opacity: contentFadeAnim }]}
+          >
             <View style={styles.header}>
               <Text style={styles.brandTitle}>ASTROLABE</Text>
-              <Text style={styles.brandSubtitle}>感情に翻弄されるのでなく、冷静に海図を読み、自律して航海する</Text>
+              <Text style={styles.brandSubtitle}>
+                感情に翻弄されず、自分の海図を読む
+              </Text>
             </View>
 
-            {/* 中央のアストロラーベ計器 */}
             <View style={styles.instrumentOuterContainer}>
-              <Animated.View style={[styles.instrumentWrapper, { transform: [{ rotate: spin }, { scale: scaleAnim }] }]}>
-                <Svg width={260} height={260} viewBox="0 0 280 280">
-                  <Circle cx="140" cy="140" r="130" stroke="#C8A040" strokeWidth="2" fill="none" />
-                  <Circle cx="140" cy="140" r="120" stroke="#C8A040" strokeWidth="0.5" fill="none" strokeDasharray="4, 4" />
-                  <Circle cx="140" cy="140" r="80" stroke="#4A8ED4" strokeWidth="1" fill="none" />
-                  <Path d="M140 10 L140 25 M140 255 L140 270 M10 140 L25 140 M255 140 L270 140" stroke="#C8A040" strokeWidth="2" />
-                  <Path d="M49 49 L60 60 M231 49 L220 60 M49 231 L60 220 M231 231 L220 220" stroke="#C8A040" strokeWidth="1" />
-                  <Path d="M140 60 A80 80 0 0 1 220 140 A80 80 0 0 1 140 220 A80 80 0 0 1 60 140 A80 80 0 0 1 140 60" stroke="#7058C0" strokeWidth="0.75" fill="none" />
-                  <Circle cx="140" cy="140" r="6" fill="#C8A040" />
-                </Svg>
-              </Animated.View>
+              <View
+                style={{
+                  width: INSTRUMENT_SIZE,
+                  height: INSTRUMENT_SIZE,
+                }}
+              >
+                <AstrolabeInstrument
+                  size={INSTRUMENT_SIZE}
+                  ringAngle={focusAngle}
+                  lensScale={1}
+                />
+
+                {nodes.map((n) => (
+                  <TouchableOpacity
+                    key={n.mode}
+                    activeOpacity={0.7}
+                    style={[
+                      styles.nodeButton,
+                      {
+                        left: n.x - 32,
+                        top: n.y - 28,
+                      },
+                    ]}
+                    onPress={() => handleModeChange(n.mode)}
+                  >
+                    <Text style={styles.nodeGlyph}>{n.glyph}</Text>
+                    <Text style={styles.nodeLabel}>{n.label}</Text>
+                    <Text style={styles.nodeSub}>{n.sub}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
-            {/* 四方ナビゲーション */}
-            <View style={styles.navOverlay}>
-              <TouchableOpacity style={[styles.navButton, styles.navTop]} onPress={() => handleModeChange('observe')}>
-                <Text style={styles.navIcon}>◎</Text>
-                <Text style={styles.navLabel}>観測</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={[styles.navButton, styles.navRight]} onPress={() => handleModeChange('northstar')}>
-                <Text style={styles.navIcon}>✦</Text>
-                <Text style={styles.navLabel}>北極星</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={[styles.navButton, styles.navBottom]} onPress={() => handleModeChange('journal')}>
-                <Text style={styles.navIcon}>◫</Text>
-                <Text style={styles.navLabel}>日誌</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={[styles.navButton, styles.navLeft]} onPress={() => handleModeChange('wake')}>
-                <Text style={styles.navIcon}>〜</Text>
-                <Text style={styles.navLabel}>航跡</Text>
-              </TouchableOpacity>
+            <View style={styles.footerStats}>
+              <Text style={styles.footerStat}>● 8 星</Text>
+              <Text style={styles.footerSep}>|</Text>
+              <Text style={styles.footerStat}>● 2 星雲</Text>
+              <Text style={styles.footerSep}>|</Text>
+              <Text style={styles.footerStat}>✦ 4 航法</Text>
             </View>
-
-            <Text style={styles.footerHint}>計器をタップして探索する</Text>
-          </View>
+          </Animated.View>
         ) : (
-          <Animated.View style={[styles.contentContainer, { opacity: contentFadeAnim }]}>
+          <Animated.View
+            style={[styles.contentContainer, { opacity: contentFadeAnim }]}
+          >
             <ScrollView contentContainerStyle={styles.scrollContent}>
               {currentMode === 'observe' && <ObservationScreen />}
               {currentMode === 'northstar' && <NorthStarScreen />}
               {currentMode === 'journal' && <JournalHomeScreen />}
               {currentMode === 'wake' && <WakeViewScreen />}
             </ScrollView>
-
-            <TouchableOpacity style={styles.backButton} onPress={() => handleModeChange('hub')}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => handleModeChange('hub')}
+            >
               <Text style={styles.backButtonText}>⚓ 計器へ戻る</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -139,26 +181,83 @@ export default function AstrolabeHubScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#030712' },
+  container: { flex: 1, backgroundColor: '#03050C' },
   safeArea: { flex: 1 },
-  star: { position: 'absolute', width: 2, height: 2, backgroundColor: '#FFF', borderRadius: 1 },
-  hubContainer: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingVertical: 30 },
-  header: { alignItems: 'center', marginTop: 15, paddingHorizontal: 30 },
-  brandTitle: { fontSize: 24, letterSpacing: 8, color: '#FFF', fontWeight: '300' as const },
-  brandSubtitle: { fontSize: 11, color: '#9CA3AF', marginTop: 12, textAlign: 'center', lineHeight: 18, letterSpacing: 1 },
-  instrumentOuterContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 280 },
-  instrumentWrapper: { width: 260, height: 260, justifyContent: 'center', alignItems: 'center' },
-  navOverlay: { position: 'absolute', width: width, height: 320, top: '32%' },
-  navButton: { position: 'absolute', alignItems: 'center', justifyContent: 'center', width: 70, height: 60 },
-  navTop: { top: 0, left: width / 2 - 35 },
-  navRight: { right: width * 0.08, top: 120 },
-  navBottom: { bottom: 0, left: width / 2 - 35 },
-  navLeft: { left: width * 0.08, top: 120 },
-  navIcon: { fontSize: 20, color: '#C8A040', marginBottom: 2 },
-  navLabel: { fontSize: 12, color: '#9CA3AF', letterSpacing: 2 },
-  footerHint: { fontSize: 11, color: '#4B5563', letterSpacing: 2, marginBottom: 10 },
-  contentContainer: { flex: 1, width: width },
-  scrollContent: { paddingBottom: 100 },
-  backButton: { position: 'absolute', bottom: 25, alignSelf: 'center', backgroundColor: 'rgba(17, 24, 39, 0.95)', borderWidth: 1, borderColor: '#C8A040', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 20 },
-  backButtonText: { color: '#C8A040', fontSize: 12, letterSpacing: 2 },
+  hubContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+  header: { alignItems: 'center', marginTop: 12, paddingHorizontal: 30 },
+  brandTitle: {
+    fontSize: 22,
+    letterSpacing: 10,
+    color: '#E8DCB8',
+    fontWeight: '300',
+  },
+  brandSubtitle: {
+    fontSize: 11,
+    color: '#7E8AA8',
+    marginTop: 10,
+    textAlign: 'center',
+    letterSpacing: 2,
+  },
+  instrumentOuterContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nodeButton: {
+    position: 'absolute',
+    width: 64,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nodeGlyph: {
+    fontSize: 18,
+    color: '#F0C76A',
+  },
+  nodeLabel: {
+    fontSize: 11,
+    color: '#D0D8E8',
+    letterSpacing: 3,
+    marginTop: 2,
+  },
+  nodeSub: {
+    fontSize: 8,
+    color: '#7E8AA8',
+    letterSpacing: 1.4,
+    marginTop: 1,
+  },
+  footerStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  footerStat: {
+    fontSize: 10,
+    color: '#7E8AA8',
+    letterSpacing: 1.5,
+  },
+  footerSep: { color: '#3A4868', marginHorizontal: 10, fontSize: 10 },
+  contentContainer: { flex: 1, width },
+  scrollContent: { paddingBottom: 110 },
+  backButton: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(8,13,28,0.92)',
+    borderWidth: 1,
+    borderColor: '#D4A853',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 22,
+  },
+  backButtonText: {
+    color: '#F0C76A',
+    fontSize: 12,
+    letterSpacing: 3,
+  },
 });
