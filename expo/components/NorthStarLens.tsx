@@ -120,6 +120,7 @@ const UnsetView: React.FC<{ size: number }> = ({ size }) => {
   return (
     <View style={[styles.center, { width: size, height: size }]}>
       <Animated.View
+        collapsable={undefined}
         style={[
           StyleSheet.absoluteFill,
           {
@@ -199,6 +200,7 @@ const Sparkle: React.FC<{
   const opacity = a.interpolate({ inputRange: [0, 1], outputRange: [0.15, 0.95] });
   return (
     <Animated.View
+      collapsable={undefined}
       style={{
         position: 'absolute',
         left: x - size / 2,
@@ -305,6 +307,7 @@ const AvailableView: React.FC<{ size: number; onBeginNaming?: () => void }> = ({
 
       {/* golden orb */}
       <Animated.View
+        collapsable={undefined}
         style={[
           styles.center,
           {
@@ -433,6 +436,7 @@ const NamedView: React.FC<{ size: number; statement?: string }> = ({
     <View style={[styles.center, { width: size, height: size }]}>
       {/* outer halo */}
       <Animated.View
+        collapsable={undefined}
         style={[
           StyleSheet.absoluteFill,
           styles.center,
@@ -453,6 +457,7 @@ const NamedView: React.FC<{ size: number; statement?: string }> = ({
 
       {/* inner glow */}
       <Animated.View
+        collapsable={undefined}
         style={[
           StyleSheet.absoluteFill,
           styles.center,
@@ -473,6 +478,7 @@ const NamedView: React.FC<{ size: number; statement?: string }> = ({
 
       {/* point star */}
       <Animated.View
+        collapsable={undefined}
         style={{
           position: 'absolute',
           width: 6,

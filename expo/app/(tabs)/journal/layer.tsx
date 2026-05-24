@@ -93,7 +93,7 @@ export default function JournalLayer() {
           </View>
         ) : null}
 
-        <Animated.View style={[styles.content, { opacity: fade }]}>
+        <Animated.View collapsable={undefined} style={[styles.content, { opacity: fade }]}>
           <Text style={styles.question}>{currentQ.q}</Text>
 
           <View style={{ height: 18 }} />

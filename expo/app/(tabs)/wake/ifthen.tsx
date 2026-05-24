@@ -270,6 +270,7 @@ function ActiveSlot({
           testID={`ifthen-check-${index}`}
         >
           <Animated.View
+            collapsable={undefined}
             pointerEvents="none"
             style={[
               styles.pressFill,
@@ -277,6 +278,7 @@ function ActiveSlot({
             ]}
           />
           <Animated.View
+            collapsable={undefined}
             pointerEvents="none"
             style={[
               styles.ripple,

@@ -278,6 +278,7 @@ export default function ProDiagnosticFlow() {
 
         {showDomainCard ? (
           <Animated.View
+            collapsable={undefined}
             pointerEvents="none"
             style={[styles.domainCardOverlay, { opacity: domainCardOpacity }]}
           >

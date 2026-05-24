@@ -106,6 +106,7 @@ export default function AstrolabeHubScreen() {
       <SafeAreaView style={styles.safeArea}>
         {currentMode === 'hub' ? (
           <Animated.View
+            collapsable={undefined}
             style={[styles.hubContainer, { opacity: contentFadeAnim }]}
           >
             <View style={styles.header}>
@@ -159,6 +160,7 @@ export default function AstrolabeHubScreen() {
           </Animated.View>
         ) : (
           <Animated.View
+            collapsable={undefined}
             style={[styles.contentContainer, { opacity: contentFadeAnim }]}
           >
             <ScrollView contentContainerStyle={styles.scrollContent}>

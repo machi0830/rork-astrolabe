@@ -135,6 +135,7 @@ export default function DiagnosticFlow() {
 
         {showDomainCard ? (
           <Animated.View
+            collapsable={undefined}
             pointerEvents="none"
             style={[styles.domainCardOverlay, { opacity: domainCardOpacity }]}
           >
