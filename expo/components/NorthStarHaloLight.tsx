@@ -62,6 +62,7 @@ export default function NorthStarHaloLight({ visible, size = 240 }: NorthStarHal
     <View pointerEvents="none" style={[styles.fill, { alignItems: 'center', justifyContent: 'center' }]}>
       {/* Outer halo */}
       <Animated.View
+        collapsable={undefined}
         style={{
           position: 'absolute',
           width: outer, height: outer,
@@ -83,6 +84,7 @@ export default function NorthStarHaloLight({ visible, size = 240 }: NorthStarHal
 
       {/* Mid glow */}
       <Animated.View
+        collapsable={undefined}
         style={{
           position: 'absolute',
           width: mid, height: mid,
@@ -104,6 +106,7 @@ export default function NorthStarHaloLight({ visible, size = 240 }: NorthStarHal
 
       {/* Pinpoint star */}
       <Animated.View
+        collapsable={undefined}
         style={{
           position: 'absolute',
           width: 6, height: 6, borderRadius: 3,

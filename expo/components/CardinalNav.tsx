@@ -121,6 +121,7 @@ export default function Cardinal({ direction, hubSize = 360, instrumentSize = 30
     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
       {isStarPulse && (
         <Animated.View
+          collapsable={undefined}
           pointerEvents="none"
           style={{
             position: 'absolute',

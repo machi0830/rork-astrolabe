@@ -49,6 +49,7 @@ export default function ConcentricCircles({ size = 60 }: Props) {
     <View style={[styles.wrap, { width: size, height: size }]}>
       {LAYERS.map((l, i) => (
         <Animated.View
+          collapsable={undefined}
           key={i}
           style={[
             styles.ring,

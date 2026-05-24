@@ -163,7 +163,7 @@ export default function AstrolabeInstrument({
   const unfocused = lensState === 'unfocused';
 
   return (
-    <View style={{ width: size, height: size }} pointerEvents="box-none">
+    <View collapsable={undefined} style={{ width: size, height: size }} pointerEvents="box-none">
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
           <RadialGradient id="astro-glow" cx="50%" cy="50%" rx="50%" ry="50%" fx="50%" fy="50%">
@@ -196,7 +196,7 @@ export default function AstrolabeInstrument({
         <Circle cx={cx} cy={cy} r={outerR} fill="none" stroke={P.gold} strokeWidth={1.5} strokeOpacity={0.55} />
         <Circle cx={cx} cy={cy} r={outerR - 14} fill="none" stroke={P.gold} strokeWidth={0.4} strokeOpacity={0.25} />
 
-        <AnimatedG style={{ transform: [{ rotate: rotateStr }] }} origin={`${cx}, ${cy}`}>
+        <AnimatedG style={{ transform: [{ translateX: cx }, { translateY: cy }, { rotate: rotateStr }, { translateX: -cx }, { translateY: -cy }] }}>
           {ticks.map((t, i) => (
             <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
               stroke={P.gold} strokeWidth={t.major ? 1 : 0.4}
@@ -224,6 +224,7 @@ export default function AstrolabeInstrument({
       </Svg>
 
       <Animated.View
+        collapsable={undefined}
         pointerEvents="box-none"
         style={[
           StyleSheet.absoluteFill,

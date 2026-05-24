@@ -37,7 +37,7 @@ export const DeepStarfield: React.FC<Props> = ({ count = 150 }) => {
   );
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View collapsable={undefined} style={StyleSheet.absoluteFill} pointerEvents="none">
       {stars.map((s, i) => (
         <Twinkle key={i} star={s} />
       ))}
@@ -77,6 +77,7 @@ const Twinkle: React.FC<{ star: Star }> = ({ star }) => {
 
   return (
     <Animated.View
+      collapsable={undefined}
       style={{
         position: 'absolute',
         left: star.x,

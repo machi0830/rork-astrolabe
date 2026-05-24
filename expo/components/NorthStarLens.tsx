@@ -281,6 +281,7 @@ const AvailableView: React.FC<{ size: number; onBeginNaming?: () => void }> = ({
         });
         return (
           <Animated.View
+            collapsable={undefined}
             key={i}
             style={[
               StyleSheet.absoluteFill,
